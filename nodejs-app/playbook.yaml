@@ -1,0 +1,28 @@
+---
+- hosts: all
+  become: yes
+
+  vars:
+    node_apps_location: /usr/local/opt/node
+
+  tasks:
+    - name: Install Node.js
+      yum:
+        name: nodejs
+        state: present
+
+    - name: Create node apps directory
+      file:
+        path: "{{ node_apps_location }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Copy application configuration
+      copy:
+        src: /path/to/local/config.json
+        dest: "{{ node_apps_location }}/config.json"
+        owner: root
+        group: root
+        mode: '0644'
