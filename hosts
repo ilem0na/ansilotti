@@ -1,0 +1,6 @@
+[ansible_serve]
+18.217.66.3
+
+[ansible_serve:vars]
+ansible_ssh_private_key_file=/Users/ilemo/ansilotti.pem
+ansible_user=ec2-user
