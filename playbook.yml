@@ -1,30 +1,26 @@
----
 - hosts: all
   become: yes
 
   tasks:
-    - name: Install Apache.
-      yum:
+    - name: Install Apache
+      ansible.builtin.apt:
         name:
-          - httpd
-          - httpd-devel
+          - apache2
+          - apache2-dev
         state: present
 
-    - name: Copy configuration files.
+    - name: Copy configuration files
       copy:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: root
-        group: root
-        mode: 0644
-      with_items:
-        - src: httpd.conf
-          dest: /etc/httpd/conf/httpd.conf
-        - src: httpd-vhosts.conf
-          dest: /etc/httpd/conf/httpd-vhosts.conf
+        src: httpd.conf
+        dest: /etc/apache2/apache2.conf
 
-    - name: Make sure Apache is started now and at boot.
+    - name: Copy virtual hosts configuration file
+      copy:
+        src: httpd-vhosts.conf
+        dest: /etc/apache2/sites-available/000-default.conf
+
+    - name: Start Apache and configure it to run at boot
       service:
-        name: httpd
+        name: apache2
         state: started
         enabled: yes
