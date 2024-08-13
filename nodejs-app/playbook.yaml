@@ -3,6 +3,7 @@
 
   vars:
     node_apps_location: /usr/local/opt/node
+    node_app_port: 3000  # Change this to the port your app is using
 
   tasks:
     - name: Ensure UFW is stopped (since this is a test server).
@@ -20,9 +21,23 @@
       ansible.builtin.apt:
         update_cache: yes
 
+    - name: Install Node.js from NodeSource repository.
+      ansible.builtin.apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
+
+    - name: Add NodeSource repository.
+      ansible.builtin.apt_repository:
+        repo: 'deb https://deb.nodesource.com/node_14.x {{ ansible_distribution_release }} main'
+        state: present
+
+    - name: Update apt cache after adding NodeSource repository.
+      ansible.builtin.apt:
+        update_cache: yes
+
     - name: Install Node.js and npm.
       ansible.builtin.apt:
-        name: npm
+        name: nodejs
         state: present
 
     - name: Install Forever (to run our Node.js app).
@@ -53,3 +68,9 @@
     - name: Start example Node.js app.
       command: "forever start {{ node_apps_location }}/app/app.js"
       when: "forever_list.stdout.find(node_apps_location + '/app/app.js') == -1"
+
+    - name: Ensure the Node.js app port is open.
+      ufw:
+        rule: allow
+        port: "{{ node_app_port }}"
+        proto: tcp
